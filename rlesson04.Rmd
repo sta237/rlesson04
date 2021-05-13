@@ -16,7 +16,6 @@ library(learnr)
 library(tidyverse)
 library(ggplot2)
 library(gganimate)
-library(patchwork)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
