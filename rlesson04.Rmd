@@ -1,0 +1,136 @@
+---
+title: "Lecture 4: Continuous Random Variables"
+output: 
+  learnr::tutorial:
+    css: css/styles.css
+runtime: shiny_prerendered
+---
+
+<!-- 
+Before running the document, make sure `learnr` package is available. 
+If missing, you can install the package with `install.packages('learnr')`.
+-->
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(ggplot2)
+library(gganimate)
+library(patchwork)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Continuous Distribution
+
+Recall the _Infinite Wheel_ example. 
+
+```{r echo=FALSE, out.width="50%", fig.asp=9/16, eval=TRUE}
+n <- 10
+wheel <- tibble(
+  x = 1:10,
+  y = rep(1, 10),
+  w = c(rep(F,3), T, rep(F, 6))
+)
+pcir <- ggplot(wheel, aes(x = '', y = y, fill = w)) +
+  theme_void() +
+  geom_bar(stat = "identity", show.legend = FALSE, 
+           color = "white", size = 1) +
+  scale_fill_manual(values = c("grey", 1)) +
+  coord_polar("y", start = sqrt(1/3) * pi)
+pcir
+```
+
+We will flatten the circumference into a line and number to slots. The "ball" moves along a continuous line.
+
+```{r echo=FALSE, out.width="80%", fig.asp=1/9, eval=TRUE}
+wheel_flat <- bind_rows(
+  wheel, wheel, wheel, wheel, wheel, 
+  wheel, wheel, wheel, wheel, wheel) %>%
+  mutate(
+    b = factor(as.vector(diag(10))),
+    a = factor(rep(1:10, each  = 10))
+  )
+pflt <- ggplot(wheel_flat, aes(x = x, y = y, fill = w)) +
+  theme_void() +
+  geom_bar(stat = "identity", show.legend = FALSE, 
+           color = "white", size = 1) +
+  geom_text(aes(label = rep(LETTERS[1:10], 10)), vjust = -.5, hjust = 0.5) + 
+  geom_point(aes(y = -0.5, color = b), show.legend = FALSE) +
+  scale_fill_manual(values = c("grey", 1)) +
+  scale_color_manual(values = c("white", "gold")) +
+  scale_x_continuous(breaks = 0:10 + 0.5, labels = 0:10) +
+  ylim(-0.5, 10) + 
+  theme(axis.ticks.x.bottom = element_line(),
+        axis.text.x.bottom = element_text(),
+        axis.ticks.length.x.bottom = unit(3, "pt")) +
+  transition_states(a, transition_length = 3, state_length = 0) +
+  ease_aes("linear")
+pflt
+```
+
+
+Suppose you win if the ball stops at slot _D_. We can simulate the event of winning with either `sample` or `runif`.
+
+```{r discont, exercise=TRUE, exercise.lines=7}
+n <- 10^6
+discrete <- sample(LETTERS[1:0], n, replace = TRUE)
+continuous <- runif(n, min = 0, max = 10)
+
+cat("Discrete approach: ", (discrete == "D")/n)
+# cat("Continuous approach: ", )
+```
+
+## Computing Probabilities for Normal Random Variables
+
+Recall example with $X\sim N\left(1, 1.5^2\right)$. Let $Z\sim N(0,1)$.
+
+### Compute $P(X> 2.5)$
+
+$$P(X>2.5)=P\left(\frac{X-1}{1.5} > \frac{2.5-1}{1.5}\right)=P(Z>1)$$
+
+```{r zone, exericse=TRUE, exercise.lines=6}
+
+```
+
+### Compute $P(X\le -0.5)$
+
+$$P(X\le -0.5)=P\left(Z\le -1\right)$$
+
+```{r ztwo, exercise=TRUE, exercise.lines=6}
+
+```
+
+### Compute $q_{0.25}$
+
+$$q_{0.25}=F^{-1}(0.25)$$
+
+```{r zq, exercise=TRUE, exercise.lines=6}
+```
+
+
+## Computing Probabilities Directly
+
+Recall the local bank drive-up window example with $X\sim \text{Exp}(1)$. Can we compute the pdf and cdf without the internal R distribution functions?
+
+### Compute $f(2)$
+
+$$f(x)=\lambda e^{-\lambda x}$$
+
+```{r expd, exercise=TRUE, exercise.lines=10}
+
+```
+
+### Compute $F(2)$
+
+$$F(a) = 1 - e^{-\lambda a}$$
+
+```{r expc, exercise=TRUE, exercise.lines=10}
+
+```
+
+
+There may not be R functions for uncommon distributions. The probability can be calculated if the cdf or pmf/pdf are known. 
+
+
+
