@@ -1,0 +1,277 @@
+---
+title: "Lecture 4: Continuous Random Variables"
+output: 
+  learnr::tutorial:
+    css: css/styles.css
+runtime: shiny_prerendered
+---
+
+<!-- 
+Before running the document, make sure `learnr` package is available. 
+If missing, you can install the package with `install.packages('learnr')`.
+-->
+
+```{r setup, include=FALSE}
+library(learnr)
+library(ggplot2)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## R Preparation
+
+### Loading packages
+
+Packages or libraries in R provide specialized functions not available in base R.
+For example, I have been using the package `learnr` to create these mini-lessons.
+
+Within R, you can call `install.packages("<package name>")` to install most of
+the common packages and `library(<package name>)` to load the functions available
+in the package.
+
+For example, we have using the following command to install `learnr`.
+
+```{r eval=FALSE, echo=TRUE}
+install.packages("learnr")
+```
+
+In my code for the lessons, I load the package with the following.
+
+```{r eval=FALSE, echo=TRUE}
+library(learnr)
+```
+
+
+
+### Plotting using `ggplot`
+
+You can create plots with base R without any package.
+
+```{r echo=TRUE}
+x <- 1:10
+y <- sqrt(x)
+plot(x, y)
+lines(x, y)
+```
+
+Alternatively, `ggplot2` is a popular package for creating plots. I will provide
+simple demonstrations of using `ggplot2`. You can learn more about the package
+on package [website](https://ggplot2.tidyverse.org).
+
+The code blow
+
+0. `library(ggplot2)`: loads the library.
+1. `ggplot(mapping = aes(x = x, y = y))`: creates a `ggplot` canvas and maps 
+the vector `x` to `x` axis scale and vector `y` to `y` axis scale in `ggplot`.
+2. `theme_classic()`: sets the overall look of the plot to the "classic" theme. I often use `theme_minimal()` as well.
+3. `geom_point()`: adds points as specified by the mapping provided in `aes()`. 
+4. `geom_line()`: adds a line as specified by the mapping provided in `aes()`.
+5. `labs(title = "y is square root of x", x = "x", y = "square root of x")`: customizes the plot and axes titles.
+6. `+`: adds the layers together.
+
+```{r echo=TRUE}
+library(ggplot2)
+ggplot(mapping = aes(x = x, y = y)) +
+  theme_classic() +
+  geom_point() +
+  geom_line() +
+  labs(title = "y is square root of x", x = "x", y = "square root of x")
+```
+
+Note that the mapping may be provided as you create the plot within `ggplot()`
+for all following `geom_*()` calls or override within each `geom_*()`. You
+can also change certain aesthetics within each `geom_*()`. 
+
+```{r echo=TRUE}
+z <- log(x)
+ggplot(mapping = aes(x = x, y = y)) +
+  theme_classic() +
+  geom_point(color = "blue", size = 3, shape = 1) +
+  geom_line() +
+  geom_point(aes(y = z), size = 5, colour = "red") +
+  geom_line(aes(y = z), linewidth = 1.5, linetype = 2) +
+  labs(title = "z is log of x", x = "x", y = "y and z")
+```
+
+
+In the code chunk below, plot `day_of_week` on x-axis vs. `mood` on y-axis with 
+a line and points. Change the look of the plot as you see fit.
+
+
+```{r plot-ex, exercise=TRUE, exercise.lines=14}
+day_of_week <- 1:7
+mood <- ifelse(day_of_week == 7, 3, day_of_week)
+
+
+```
+
+```{r plot-ex-solution}
+day_of_week <- 1:7
+mood <- ifelse(day_of_week == 7, 3, day_of_week)
+ggplot(mapping = aes(x = day_of_week, y = mood)) +
+  theme_minimal() +
+  geom_line() +
+  geom_point() +
+  labs(x = "", y = "Mood level")
+
+```
+
+
+## Computing Probabilities for Normal Random Variables
+
+Recall example with $X\sim N\left(1, 4^2\right)$. Use appropriate R functions
+to compute the following probabilities.
+
+### $P(X > 2)$
+
+
+```{r zone, exercise=TRUE}
+
+```
+
+```{r zone-hint-1}
+1 - pnorm(1/4) # standardizing using (X - 1) / 4
+```
+```{r zone-hint-2}
+1 - pnorm(2, 1, 4) # without standardizing
+```
+```{r zone-hint-3}
+pnorm(2, 1, 4, lower.tail = FALSE) # directly computing the complement of F
+```
+
+
+### $P(1 < X \le 5)$
+
+```{r ztwo, exercise=TRUE}
+```
+
+```{r ztwo-hint-1}
+pnorm(1) - pnorm(0) # standardizing using (X - 1) / 4
+```
+```{r ztwo-hint-2}
+pnorm(5, 1, 4) - pnorm(1, 1, 4) # without standardizing
+```
+
+### $q_{0.5}$
+
+```{r zq, exercise=TRUE}
+
+```
+
+```{r zq-hint-1}
+qnorm(0.5) * 4 + 1 # standardizing using (X - 1) / 4
+```
+```{r zq-hint-2}
+qnorm(0.5, 1, 4) # without standardizing
+```
+
+
+## Computing Probabilities Directly
+
+Recall the local bank drive-up window example with $X\sim \text{Exp}(\lambda_0)$. Suppose $\lambda_0 = 1/5$. Can we compute the pdf and cdf without the internal R distribution functions?
+
+### Compute $f(2)$
+
+$$f(x)=\lambda_0 e^{-\lambda_0 x}$$
+
+```{r expdf, exercise=TRUE, exercise.lines=5}
+x <- 2
+lambda_0 <- 1/5
+```
+
+```{r expdf-solution}
+x <- 2
+lambda_0 <- 1/5
+lambda_0 * exp(-lambda_0 * x)
+```
+
+
+
+### Compute $F(2)$
+
+$$F(a) = 1 - e^{-\lambda_0 a}$$
+
+```{r expcdf, exercise=TRUE, exercise.lines=5}
+a <- 2
+lambda_0 <- 1/5
+```
+
+```{r expcdf-solution}
+a <- 2
+lambda_0 <- 1/5
+1 - exp(-lambda_0 * a)
+```
+
+
+There may not be R functions for uncommon distributions. Their probabilities can be calculated if the cdf or pmf/pdf are known. 
+
+### Verify
+
+Use `ggplot()` to plot `darkgreen` line for the pdf of $Exp(1/5)$ over values 0 to 10 (`x`)
+using `dexp()`. Add `red` points using your version of the function evaluated at integers from 0 to 10 (`w`).
+
+
+```{r plotpdf, exercise=TRUE, exercise.lines=15}
+lambda_0 <- 1/5
+x <- seq(0, 10, 0.01)
+w <- 0:10
+
+```
+
+```{r plotpdf-hint-1}
+lambda_0 <- 1/5
+x <- seq(0, 10, 0.01)
+w <- 0:10
+# both functions output a vector
+cdf_R <- pexp(x, lambda_0) 
+cdf_diy <- 1 - exp(-lambda_0 * x)
+```
+
+```{r plotpdf-solution}
+lambda_0 <- 1/5
+x <- seq(0, 10, 0.01)
+w <- 0:10
+# both functions output a vector
+cdf_R <- pexp(x, lambda_0) 
+cdf_diy <- 1 - exp(-lambda_0 * w)
+
+ggplot() +
+  theme_minimal() +
+  geom_line(aes(x = x, y = cdf_R), colour = "darkgreen") +
+  geom_point(aes(x = w, y = cdf_diy), colour = "red")
+```
+
+> `seq(0, 10, 0.01)` creates a vector of values from `0` to `10` increasing by `0.01`. 
+Using a small step size makes the line smooth.
+
+Repeat the steps above for the cdf.
+
+```{r plotcdf, exercise=TRUE, exercise.lines=15}
+lambda_0 <- 1/5
+x <- seq(0, 10, 0.01)
+w <- 0:10
+
+```
+
+```{r plotcdf-hint-1}
+lambda_0 <- 1/5
+x <- seq(0, 10, 0.01)
+w <- 0:10
+# both functions output a vector
+pdf_R <- dexp(x, lambda_0) 
+pdf_diy <- lambda_0 * exp(-lambda_0 * x)
+```
+
+```{r plotcdf-solution}
+lambda_0 <- 1/5
+x <- seq(0, 10, 0.01)
+w <- 0:10
+# both functions output a vector
+pdf_R <- dexp(x, lambda_0) 
+pdf_diy <- lambda_0 * exp(-lambda_0 * w)
+
+ggplot() +
+  theme_minimal() +
+  geom_line(aes(x = x, y = pdf_R), colour = "darkgreen") +
+  geom_point(aes(x = w, y = pdf_diy), colour = "red")
+```
